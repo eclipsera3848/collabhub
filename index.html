@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CollabHub - Application</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#0b0f19;
+  color:#fff;
+  min-height:100vh;
+}
+
+.container{
+  width:92%;
+  max-width:900px;
+  margin:auto;
+}
+
+header{
+  padding:25px 0;
+}
+
+.logo{
+  font-size:25px;
+  font-weight:bold;
+}
+
+.logo span{
+  color:#5865f2;
+}
+
+.form-page{
+  padding:25px 0 70px;
+}
+
+.form-card{
+  background:#151b29;
+  border:1px solid #293246;
+  border-radius:20px;
+  padding:25px;
+}
+
+.form-card h1{
+  font-size:28px;
+  margin-bottom:8px;
+}
+
+.subtitle{
+  color:#929aaa;
+  line-height:1.6;
+  margin-bottom:28px;
+  font-size:14px;
+}
+
+.section-title{
+  font-size:18px;
+  font-weight:bold;
+  margin:30px 0 15px;
+}
+
+.section-text{
+  color:#929aaa;
+  font-size:13px;
+  margin-bottom:15px;
+  line-height:1.5;
+}
+
+label{
+  display:block;
+  color:#cbd1dc;
+  font-size:14px;
+  margin:15px 0 7px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  padding:14px;
+  border-radius:10px;
+  border:1px solid #30394d;
+  background:#0d121e;
+  color:#fff;
+  font-size:15px;
+  outline:none;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#5865f2;
+}
+
+textarea{
+  min-height:110px;
+  resize:vertical;
+}
+
+.platform-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+
+.platform{
+  background:#0d121e;
+  border:1px solid #30394d;
+  border-radius:12px;
+  padding:16px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.platform:hover{
+  border-color:#5865f2;
+}
+
+.platform.selected{
+  border-color:#5865f2;
+  background:#171d31;
+}
+
+.platform-title{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.platform-sub{
+  display:block;
+  color:#80899a;
+  font-size:12px;
+  margin-top:6px;
+}
+
+.platform-section{
+  display:none;
+  margin-top:20px;
+  padding:18px;
+  background:#0d121e;
+  border:1px solid #293246;
+  border-radius:14px;
+}
+
+.platform-section.active{
+  display:block;
+}
+
+.platform-section h3{
+  font-size:16px;
+  margin-bottom:12px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:15px;
+}
+
+.submit{
+  width:100%;
+  margin-top:30px;
+  padding:16px;
+  border:none;
+  border-radius:12px;
+  background:#5865f2;
+  color:#fff;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.submit:disabled{
+  opacity:.6;
+}
+
+.note{
+  margin-top:15px;
+  text-align:center;
+  color:#727b8c;
+  font-size:12px;
+  line-height:1.5;
+}
+
+.success-page{
+  display:none;
+  text-align:center;
+  padding:35px 10px 20px;
+}
+
+.success-icon{
+  width:78px;
+  height:78px;
+  margin:0 auto 20px;
+  border-radius:50%;
+  background:#5865f2;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:42px;
+  font-weight:bold;
+}
+
+.success-page h1{
+  font-size:30px;
+  margin-bottom:12px;
+}
+
+.success-page p{
+  color:#929aaa;
+  line-height:1.6;
+  margin-bottom:25px;
+}
+
+.application-box,
+.status-box{
+  background:#0d121e;
+  border:1px solid #293246;
+  border-radius:15px;
+  padding:20px;
+  margin:15px 0;
+}
+
+.application-box span,
+.status-box span{
+  display:block;
+  color:#929aaa;
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.application-box strong{
+  display:block;
+  font-size:24px;
+  letter-spacing:2px;
+}
+
+.application-box small{
+  display:block;
+  color:#727b8c;
+  margin-top:8px;
+}
+
+.status-box strong{
+  color:#9da5ff;
+  font-size:17px;
+}
+
+footer{
+  text-align:center;
+  color:#626b7c;
+  padding:25px;
+  border-top:1px solid #202737;
+  font-size:13px;
+}
+
+@media(max-width:600px){
+
+  .platform-grid,
+  .row{
+    grid-template-columns:1fr;
+  }
+
+  .form-card{
+    padding:20px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="form-page">
+
+<div class="container">
+
+<header>
+<div class="logo">Collab<span>Hub</span></div>
+</header>
+
+<div class="form-card">
+
+<div id="formContent">
+
+<h1>Collaboration Application</h1>
+
+<p class="subtitle">
+Fill in your details below to join CollabHub collaborations.
+</p>
+
+
+<!-- BASIC INFORMATION -->
+
+<div class="section-title">👤 Basic Information</div>
+
+<label>Name *</label>
+<input id="name" type="text" placeholder="Enter your name">
+
+<label>Username / Creator Name</label>
+<input id="username" type="text" placeholder="Enter your username">
+
+<label>Email *</label>
+<input id="email" type="email" placeholder="Enter your email">
+
+<label>Discord Username</label>
+<input id="discord" type="text" placeholder="username">
+
+
+<!-- PLATFORM SELECTION -->
+
+<div class="section-title">📱 Your Platforms</div>
+
+<p class="section-text">
+Tap the platform you want to add. Its details will appear below.
+</p>
+
+<div class="platform-grid">
+
+<div class="platform" onclick="togglePlatform('youtube',this)">
+<div class="platform-title">▶️ YouTube</div>
+<span class="platform-sub">Channel & audience</span>
+</div>
+
+<div class="platform" onclick="togglePlatform('instagram',this)">
+<div class="platform-title">📸 Instagram</div>
+<span class="platform-sub">Profile & followers</span>
+</div>
+
+<div class="platform" onclick="togglePlatform('tiktok',this)">
+<div class="platform-title">🎵 TikTok</div>
+<span class="platform-sub">Profile & followers</span>
+</div>
+
+<div class="platform" onclick="togglePlatform('twitter',this)">
+<div class="platform-title">𝕏 X / Twitter</div>
+<span class="platform-sub">Profile & followers</span>
+</div>
+
+<div class="platform" onclick="togglePlatform('discordServer',this)">
+<div class="platform-title">💬 Discord</div>
+<span class="platform-sub">Server & members</span>
+</div>
+
+</div>
+
+
+<!-- YOUTUBE -->
+
+<div id="youtubeSection" class="platform-section">
+
+<h3>▶️ YouTube Details</h3>
+
+<label>YouTube Channel / Profile Link</label>
+<input
+id="youtube"
+type="url"
+placeholder="https://youtube.com/@..."
+>
+
+<div class="row">
+
+<div>
+<label>YouTube Subscribers</label>
+<input
+id="youtubeSubs"
+type="number"
+placeholder="Example: 50000"
+>
+</div>
+
+<div>
+<label>Average Views</label>
+<input
+id="youtubeViews"
+type="number"
+placeholder="Example: 10000"
+>
+</div>
+
+</div>
+
+</div>
+
+
+<!-- INSTAGRAM -->
+
+<div id="instagramSection" class="platform-section">
+
+<h3>📸 Instagram Details</h3>
+
+<label>Instagram Profile Link</label>
+<input
+id="instagram"
+type="url"
+placeholder="https://instagram.com/..."
+>
+
+<label>Instagram Followers</label>
+<input
+id="instagramFollowers"
+type="number"
+placeholder="Example: 25000"
+>
+
+</div>
+
+
+<!-- TIKTOK -->
+
+<div id="tiktokSection" class="platform-section">
+
+<h3>🎵 TikTok Details</h3>
+
+<label>TikTok Profile Link</label>
+<input
+id="tiktok"
+type="url"
+placeholder="https://tiktok.com/@..."
+>
+
+<label>TikTok Followers</label>
+<input
+id="tiktokFollowers"
+type="number"
+placeholder="Example: 50000"
+>
+
+</div>
+
+
+<!-- TWITTER -->
+
+<div id="twitterSection" class="platform-section">
+
+<h3>𝕏 X / Twitter Details</h3>
+
+<label>X / Twitter Profile Link</label>
+<input
+id="twitter"
+type="url"
+placeholder="https://x.com/..."
+>
+
+<label>X / Twitter Followers</label>
+<input
+id="twitterFollowers"
+type="number"
+placeholder="Example: 10000"
+>
+
+</div>
+
+
+<!-- DISCORD -->
+
+<div id="discordServerSection" class="platform-section">
+
+<h3>💬 Discord Community Details</h3>
+
+<label>Discord Server / Community Link</label>
+<input
+id="discordServer"
+type="url"
+placeholder="https://discord.gg/..."
+>
+
+<label>Discord Members</label>
+<input
+id="discordMembers"
+type="number"
+placeholder="Example: 10000"
+>
+
+</div>
+
+
+<!-- SKILLS -->
+
+<div class="section-title">🛠️ Skills & Collaboration</div>
+
+<label>What can you help with? *</label>
+
+<input
+id="skill"
+type="text"
+placeholder="Video Editing, Design, Content Creation, Development, etc."
+>
+
+
+<label>Skills / Experience</label>
+
+<textarea
+id="experience"
+placeholder="Tell us about your skills, experience and previous work..."
+></textarea>
+
+
+<label>Portfolio / Previous Work Links</label>
+
+<textarea
+id="portfolio"
+placeholder="Paste your portfolio or previous work links..."
+></textarea>
+
+
+<label>Content Category / Niche</label>
+
+<input
+id="category"
+type="text"
+placeholder="Gaming, Tech, Education, Lifestyle, etc."
+>
+
+
+<label>Audience / Community Details</label>
+
+<textarea
+id="audience"
+placeholder="Tell us about your audience, community or target audience..."
+></textarea>
+
+
+<label>Expected Budget / Rate</label>
+
+<input
+id="rate"
+type="text"
+placeholder="Example: $50 - $200"
+>
+
+
+<label>Preferred Collaboration Type</label>
+
+<select id="collabType">
+
+<option value="">
+Select collaboration type
+</option>
+
+<option>Sponsored Video</option>
+<option>Short Video</option>
+<option>Social Media Promotion</option>
+<option>Discord Promotion</option>
+<option>Video Editing</option>
+<option>Graphic Design</option>
+<option>Content Creation</option>
+<option>Community Management</option>
+<option>Development / Technical</option>
+<option>Other</option>
+
+</select>
+
+
+<label>Availability</label>
+
+<select id="availability">
+
+<option value="">
+Select availability
+</option>
+
+<option>Available Now</option>
+<option>Available This Week</option>
+<option>Part-Time</option>
+<option>Full-Time</option>
+<option>Flexible</option>
+
+</select>
+
+
+<label>Preferred Meeting Date & Time</label>
+
+<input
+id="meeting"
+type="datetime-local"
+>
+
+
+<label>Anything Else We Should Know?</label>
+
+<textarea
+id="notes"
+placeholder="Add any additional information..."
+></textarea>
+
+
+<button
+class="submit"
+id="submitButton"
+onclick="submitDirectForm()"
+>
+Submit Application
+</button>
+
+
+<p class="note">
+Your application will be reviewed by the CollabHub team.
+</p>
+
+</div>
+
+
+<!-- SUCCESS -->
+
+<div id="successPage" class="success-page">
+
+<div class="success-icon">✓</div>
+
+<h1>Application Submitted!</h1>
+
+<p>
+Your application has been successfully submitted for review.
+</p>
+
+<div class="application-box">
+
+<span>Application ID</span>
+
+<strong id="applicationId">
+COL-000000
+</strong>
+
+<small>
+Keep this ID for future reference.
+</small>
+
+</div>
+
+
+<div class="status-box">
+
+<span>Application Status</span>
+
+<strong>
+🟡 Pending Review
+</strong>
+
+</div>
+
+
+<p style="
+margin-top:20px;
+color:#929aaa;
+line-height:1.6;
+font-size:14px;
+">
+
+You will be contacted soon through your registered email,
+Discord, or the social media platform(s) you provided.
+Please keep an eye on your messages.
+
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+<footer>
+© 2026 CollabHub
+</footer>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://pdopszwadximpwdbxctn.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_dgWHJDPdw_BByr4UM97DAA_SJt1B6GE";
+
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+/* PLATFORM OPEN / CLOSE */
+
+function togglePlatform(platform, card){
+
+const section =
+document.getElementById(
+platform + "Section"
+);
+
+if(
+section.classList.contains("active")
+){
+
+section.classList.remove("active");
+card.classList.remove("selected");
+
+}else{
+
+section.classList.add("active");
+card.classList.add("selected");
+
+}
+
+}
+
+
+/* GET VALUE */
+
+function value(id){
+
+const el =
+document.getElementById(id);
+
+return el
+? el.value.trim()
+: "";
+
+}
+
+
+function numberValue(id){
+
+const v =
+value(id);
+
+return v === ""
+? null
+: Number(v);
+
+}
+
+
+/* SUBMIT */
+
+async function submitDirectForm(){
+
+const name =
+value("name");
+
+const email =
+value("email");
+
+const skill =
+value("skill");
+
+
+if(name === ""){
+
+alert("Please enter your name.");
+
+return;
+
+}
+
+
+if(email === ""){
+
+alert("Please enter your email.");
+
+return;
+
+}
+
+
+const emailPattern =
+/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
+if(!emailPattern.test(email)){
+
+alert("Please enter a valid email address.");
+
+return;
+
+}
+
+
+if(skill === ""){
+
+alert(
+"Please tell us what you can help with."
+);
+
+return;
+
+}
+
+
+/* APPLICATION ID */
+
+const applicationId =
+"COL-" +
+Math.floor(
+100000 +
+Math.random() * 900000
+);
+
+
+/* DATA */
+
+const payload = {
+
+application_id:
+applicationId,
+
+name:
+name,
+
+username:
+value("username"),
+
+email:
+email,
+
+discord:
+value("discord"),
+
+youtube:
+value("youtube"),
+
+youtube_subs:
+numberValue("youtubeSubs"),
+
+youtube_views:
+numberValue("youtubeViews"),
+
+instagram:
+value("instagram"),
+
+instagram_followers:
+numberValue("instagramFollowers"),
+
+tiktok:
+value("tiktok"),
+
+tiktok_followers:
+numberValue("tiktokFollowers"),
+
+twitter:
+value("twitter"),
+
+twitter_followers:
+numberValue("twitterFollowers"),
+
+discord_server:
+value("discordServer"),
+
+discord_members:
+numberValue("discordMembers"),
+
+skill:
+skill,
+
+experience:
+value("experience"),
+
+portfolio:
+value("portfolio"),
+
+category:
+value("category"),
+
+audience:
+value("audience"),
+
+rate:
+value("rate"),
+
+collab_type:
+value("collabType"),
+
+availability:
+value("availability"),
+
+meeting:
+value("meeting"),
+
+notes:
+value("notes"),
+
+status:
+"Pending Review"
+
+};
+
+
+/* BUTTON */
+
+const button =
+document.getElementById(
+"submitButton"
+);
+
+button.disabled = true;
+
+button.textContent =
+"Submitting...";
+
+
+/* SEND TO SUPABASE */
+
+const { error } =
+await supabaseClient
+.from("applications")
+.insert([payload]);
+
+
+if(error){
+
+console.error(error);
+
+alert(
+"Could not submit application.\n\n" +
+error.message
+);
+
+button.disabled = false;
+
+button.textContent =
+"Submit Application";
+
+return;
+
+}
+
+
+/* SUCCESS */
+
+document.getElementById(
+"applicationId"
+).textContent =
+applicationId;
+
+
+document.getElementById(
+"formContent"
+).style.display =
+"none";
+
+
+document.getElementById(
+"successPage"
+).style.display =
+"block";
+
+
+window.scrollTo(0,0);
+
+}
+
+</script>
+
+</body>
+  </html>
