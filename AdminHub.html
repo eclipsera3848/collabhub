@@ -1,1 +1,723 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CollabHub Admin</title>
 
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#0b0f19;
+  color:white;
+}
+.container{
+  width:94%;
+  max-width:1100px;
+  margin:auto;
+}
+header{
+  padding:22px 0;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo{
+  font-size:25px;
+  font-weight:bold;
+}
+.logo span{color:#5865f2}
+
+.card{
+  background:#151b29;
+  border:1px solid #293246;
+  border-radius:16px;
+  padding:20px;
+  margin-bottom:18px;
+}
+
+input,select,textarea{
+  width:100%;
+  padding:13px;
+  margin:7px 0 14px;
+  border-radius:9px;
+  border:1px solid #30394d;
+  background:#0d121e;
+  color:white;
+  font-size:15px;
+}
+
+button{
+  border:0;
+  border-radius:9px;
+  padding:12px 17px;
+  cursor:pointer;
+  font-weight:bold;
+  margin:4px;
+}
+
+.primary{background:#5865f2;color:white}
+.green{background:#198754;color:white}
+.red{background:#dc3545;color:white}
+.gray{background:#30394d;color:white}
+
+#adminPage{display:none}
+
+.application{
+  border:1px solid #30394d;
+  border-radius:13px;
+  padding:18px;
+  margin:12px 0;
+}
+
+.application h3{
+  margin:0 0 8px;
+}
+
+.muted{
+  color:#929aaa;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.details{
+  display:none;
+  margin-top:15px;
+  padding-top:15px;
+  border-top:1px solid #30394d;
+}
+
+.detail{
+  margin:9px 0;
+}
+
+.detail b{
+  color:#cbd1dc;
+}
+
+.badge{
+  display:inline-block;
+  padding:6px 10px;
+  border-radius:20px;
+  background:#30394d;
+  font-size:12px;
+}
+
+#loginPage{
+  max-width:450px;
+  margin:80px auto;
+}
+
+.hidden{display:none!important}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<!-- LOGIN -->
+
+<div id="loginPage" class="card">
+
+<h1>🔐 Admin Login</h1>
+
+<p class="muted">
+Login with your authorized CollabHub admin account.
+</p>
+
+<label>Email</label>
+<input id="email" type="email" placeholder="Admin email">
+
+<label>Password</label>
+<input id="password" type="password" placeholder="Password">
+
+<button class="primary" onclick="login()">
+Login
+</button>
+
+<p id="loginMsg" class="muted"></p>
+
+</div>
+
+
+<!-- ADMIN -->
+
+<div id="adminPage">
+
+<header>
+
+<div class="logo">
+Collab<span>Hub</span> Admin
+</div>
+
+<button class="gray" onclick="logout()">
+Logout
+</button>
+
+</header>
+
+
+<!-- ADMIN MANAGEMENT -->
+
+<div class="card">
+
+<h2>👑 Admin Management</h2>
+
+<p class="muted">
+Add another Supabase user as a CollabHub admin.
+</p>
+
+<input
+id="newAdminEmail"
+type="email"
+placeholder="New admin email"
+>
+
+<button class="primary" onclick="addAdmin()">
+Add Admin
+</button>
+
+<div id="adminMsg" class="muted"></div>
+
+<div id="adminList"></div>
+
+</div>
+
+
+<!-- APPLICATIONS -->
+
+<div class="card">
+
+<h2>📋 Applications</h2>
+
+<select id="statusFilter" onchange="loadApplications()">
+
+<option value="ALL">All Applications</option>
+<option>Pending Review</option>
+<option>Approved</option>
+<option>Rejected</option>
+<option>Collaboration Active</option>
+<option>Proof Submitted</option>
+<option>Proof Verified</option>
+<option>Payment Pending</option>
+<option>Paid</option>
+<option>Completed</option>
+
+</select>
+
+<button class="primary" onclick="loadApplications()">
+🔄 Refresh
+</button>
+
+<div id="applications">
+Loading...
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script>
+
+const SUPABASE_URL =
+"https://pdopszwadximpwdbxctn.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_dgWHJDPdw_BByr4UM97DAA_SJt1B6GE";
+
+const sb =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+/* LOGIN */
+
+async function login(){
+
+const email =
+document.getElementById("email").value.trim();
+
+const password =
+document.getElementById("password").value;
+
+const msg =
+document.getElementById("loginMsg");
+
+msg.textContent="Logging in...";
+
+const {data,error} =
+await sb.auth.signInWithPassword({
+email:email,
+password:password
+});
+
+if(error){
+
+msg.textContent =
+"Login failed: "+error.message;
+
+return;
+}
+
+
+/* CHECK ADMIN */
+
+const {data:admin,error:adminError} =
+await sb
+.from("admin_users")
+.select("*")
+.eq("email",email)
+.eq("active",true)
+.maybeSingle();
+
+if(adminError || !admin){
+
+await sb.auth.signOut();
+
+msg.textContent =
+"This account is not an authorized admin.";
+
+return;
+}
+
+document.getElementById("loginPage")
+.style.display="none";
+
+document.getElementById("adminPage")
+.style.display="block";
+
+loadApplications();
+loadAdmins();
+
+}
+
+
+/* LOGOUT */
+
+async function logout(){
+
+await sb.auth.signOut();
+
+location.reload();
+
+}
+
+
+/* APPLICATIONS */
+
+async function loadApplications(){
+
+const box =
+document.getElementById("applications");
+
+box.innerHTML="Loading applications...";
+
+const filter =
+document.getElementById("statusFilter").value;
+
+let query =
+sb
+.from("applications")
+.select("*")
+.order("created_at",{ascending:false});
+
+if(filter !== "ALL"){
+query=query.eq("status",filter);
+}
+
+const {data,error}=await query;
+
+if(error){
+
+box.innerHTML =
+"<p class='muted'>Error: "+
+error.message+
+"</p>";
+
+return;
+}
+
+if(!data || data.length===0){
+
+box.innerHTML =
+"<p class='muted'>No applications found.</p>";
+
+return;
+}
+
+box.innerHTML="";
+
+data.forEach(app=>{
+
+const div =
+document.createElement("div");
+
+div.className="application";
+
+div.innerHTML=`
+
+<h3>${escapeHtml(app.name || "")}</h3>
+
+<div class="muted">
+Application ID:
+<b>${escapeHtml(app.application_id || "")}</b>
+</div>
+
+<div class="muted">
+Email:
+${escapeHtml(app.email || "")}
+</div>
+
+<div style="margin:10px 0">
+<span class="badge">
+${escapeHtml(app.status || "Pending Review")}
+</span>
+</div>
+
+<button class="primary"
+onclick="toggleDetails('${app.id}')">
+View Details
+</button>
+
+<button class="green"
+onclick="changeStatus('${app.id}','Approved')">
+Approve
+</button>
+
+<button class="red"
+onclick="changeStatus('${app.id}','Rejected')">
+Reject
+</button>
+
+<div
+id="details-${app.id}"
+class="details">
+
+<div class="detail">
+<b>Username:</b>
+${escapeHtml(app.username || "-")}
+</div>
+
+<div class="detail">
+<b>Discord:</b>
+${escapeHtml(app.discord || "-")}
+</div>
+
+<div class="detail">
+<b>YouTube:</b>
+${escapeHtml(app.youtube || "-")}
+</div>
+
+<div class="detail">
+<b>YouTube Subscribers:</b>
+${app.youtube_subs ?? "-"}
+</div>
+
+<div class="detail">
+<b>Average Views:</b>
+${app.youtube_views ?? "-"}
+</div>
+
+<div class="detail">
+<b>Instagram:</b>
+${escapeHtml(app.instagram || "-")}
+</div>
+
+<div class="detail">
+<b>Instagram Followers:</b>
+${app.instagram_followers ?? "-"}
+</div>
+
+<div class="detail">
+<b>TikTok:</b>
+${escapeHtml(app.tiktok || "-")}
+</div>
+
+<div class="detail">
+<b>TikTok Followers:</b>
+${app.tiktok_followers ?? "-"}
+</div>
+
+<div class="detail">
+<b>X/Twitter:</b>
+${escapeHtml(app.twitter || "-")}
+</div>
+
+<div class="detail">
+<b>X Followers:</b>
+${app.twitter_followers ?? "-"}
+</div>
+
+<div class="detail">
+<b>Discord Server:</b>
+${escapeHtml(app.discord_server || "-")}
+</div>
+
+<div class="detail">
+<b>Discord Members:</b>
+${app.discord_members ?? "-"}
+</div>
+
+<div class="detail">
+<b>Skills:</b>
+${escapeHtml(app.skill || "-")}
+</div>
+
+<div class="detail">
+<b>Experience:</b>
+${escapeHtml(app.experience || "-")}
+</div>
+
+<div class="detail">
+<b>Portfolio:</b>
+${escapeHtml(app.portfolio || "-")}
+</div>
+
+<div class="detail">
+<b>Category:</b>
+${escapeHtml(app.category || "-")}
+</div>
+
+<div class="detail">
+<b>Audience:</b>
+${escapeHtml(app.audience || "-")}
+</div>
+
+<div class="detail">
+<b>Rate:</b>
+${escapeHtml(app.rate || "-")}
+</div>
+
+<div class="detail">
+<b>Collaboration Type:</b>
+${escapeHtml(app.collab_type || "-")}
+</div>
+
+<div class="detail">
+<b>Availability:</b>
+${escapeHtml(app.availability || "-")}
+</div>
+
+<div class="detail">
+<b>Meeting:</b>
+${escapeHtml(app.meeting || "-")}
+</div>
+
+<div class="detail">
+<b>Notes:</b>
+${escapeHtml(app.notes || "-")}
+</div>
+
+<br>
+
+<select id="status-${app.id}">
+
+<option>Pending Review</option>
+<option>Approved</option>
+<option>Rejected</option>
+<option>Collaboration Active</option>
+<option>Proof Submitted</option>
+<option>Proof Verified</option>
+<option>Payment Pending</option>
+<option>Paid</option>
+<option>Completed</option>
+
+</select>
+
+<button class="primary"
+onclick="saveStatus('${app.id}')">
+Save Status
+</button>
+
+</div>
+`;
+
+box.appendChild(div);
+
+});
+
+}
+
+
+/* DETAILS */
+
+function toggleDetails(id){
+
+const el =
+document.getElementById("details-"+id);
+
+el.style.display =
+el.style.display==="block"
+? "none"
+: "block";
+
+}
+
+
+/* QUICK STATUS */
+
+async function changeStatus(id,status){
+
+if(!confirm(
+"Change application status to "+status+"?"
+)){
+return;
+}
+
+const {error} =
+await sb
+.from("applications")
+.update({status:status})
+.eq("id",id);
+
+if(error){
+
+alert(error.message);
+
+return;
+}
+
+loadApplications();
+
+}
+
+
+/* STATUS SELECT */
+
+async function saveStatus(id){
+
+const status =
+document.getElementById(
+"status-"+id
+).value;
+
+await changeStatus(id,status);
+
+}
+
+
+/* ADD ADMIN */
+
+async function addAdmin(){
+
+const email =
+document.getElementById(
+"newAdminEmail"
+).value.trim()
+.toLowerCase();
+
+const msg =
+document.getElementById("adminMsg");
+
+if(!email){
+
+msg.textContent =
+"Enter an email.";
+
+return;
+}
+
+const {error} =
+await sb
+.from("admin_users")
+.insert({
+email:email,
+role:"manager",
+active:true
+});
+
+if(error){
+
+msg.textContent =
+"Error: "+error.message;
+
+return;
+}
+
+msg.textContent =
+"Admin added successfully.";
+
+document.getElementById(
+"newAdminEmail"
+).value="";
+
+loadAdmins();
+
+}
+
+
+/* ADMIN LIST */
+
+async function loadAdmins(){
+
+const list =
+document.getElementById("adminList");
+
+const {data,error} =
+await sb
+.from("admin_users")
+.select("*")
+.order("created_at",{ascending:true});
+
+if(error){
+
+list.innerHTML="";
+return;
+}
+
+list.innerHTML =
+"<h3>Current Admins</h3>";
+
+data.forEach(admin=>{
+
+const div =
+document.createElement("div");
+
+div.className="application";
+
+div.innerHTML=`
+
+<b>${escapeHtml(admin.email)}</b>
+
+<div class="muted">
+Role: ${escapeHtml(admin.role || "manager")}
+<br>
+Active: ${admin.active ? "Yes":"No"}
+</div>
+
+`;
+
+list.appendChild(div);
+
+});
+
+}
+
+
+/* SECURITY */
+
+function escapeHtml(value){
+
+return String(value)
+.replaceAll("&","&amp;")
+.replaceAll("<","&lt;")
+.replaceAll(">","&gt;")
+.replaceAll('"',"&quot;")
+.replaceAll("'","&#039;");
+
+}
+
+</script>
+
+</body>
+  </html>
